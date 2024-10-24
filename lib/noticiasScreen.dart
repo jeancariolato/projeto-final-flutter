@@ -78,7 +78,7 @@ class _NoticiasScreenState extends State<NoticiasScreen> {
                   // Formatando a data
                   final dataFormatada = formatarData(dataOriginal); 
                   final link = noticia['link'];
-                  final content = noticia['content']['rendered'];
+                  final content = limparConteudo(noticia['content']['rendered']);
 
                   return NoticiaCard(
                     titulo: titulo,
@@ -91,4 +91,10 @@ class _NoticiasScreenState extends State<NoticiasScreen> {
       ),
     );
   }
+
+  // Função para limpar o conteúdo HTML
+  String limparConteudo(String conteudo) {
+  final regex = RegExp(r'<[^>]*>');
+  return conteudo.replaceAll(regex, ''); // Substitui as tags por uma string vazia
+}
 }
