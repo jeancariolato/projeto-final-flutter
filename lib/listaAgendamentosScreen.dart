@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_final/agendamentoDAO.dart';
-import 'databaseHelper.dart'; // Certifique-se que você importou a classe do banco
+// Certifique-se que você importou a classe do banco
 import 'AgendamentoCard.dart';
 
 class ListaAgendamentosScreen extends StatefulWidget {
@@ -12,6 +12,7 @@ class ListaAgendamentosScreen extends StatefulWidget {
 }
 
 class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
+  //Instanciando objeto DAO do agendamento
   final agendamentoDAO _agendamentoDAO = agendamentoDAO();
 
   List<Map<String, dynamic>> agendamentos = [];
@@ -21,7 +22,7 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
     super.initState();
     _carregarAgendamentos();
   }
-
+//Função carregar agendamentos
   Future<void> _carregarAgendamentos() async {
     List<Map<String, dynamic>> agendamentosCarregados =
         await _agendamentoDAO.listarAgendamentos();
@@ -29,15 +30,18 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
       agendamentos = agendamentosCarregados;
     });
   }
-
+//função para deletar
   Future<void> _deletarAgendamento(int id) async {
-    await _agendamentoDAO.deletarAgendamento(id); // Chama a função para deletar um agendamento específico
-    _carregarAgendamentos(); // Recarrega a lista de agendamentos
+    //Chama função no banco
+    await _agendamentoDAO.deletarAgendamento(id); 
+    // Recarrega a lista de agendamentos
+    _carregarAgendamentos(); 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Agendamento deletado com sucesso.'),
     ));
   }
 
+//função para deletar todos os agendamentos
   Future<void> _deletarTodosAgendamentos() async {
     await _agendamentoDAO.deletarTodosAgendamentos(); // Chama sua função para deletar todos os agendamentos
     _carregarAgendamentos(); // Recarrega a lista de agendamentos
@@ -46,6 +50,8 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
     ));
   }
 
+//ALERTA DE CONFIRMAÇÃO PARA EXCLUSÃO TOTAL DE AGENDAMENTOS
+//utilizando Widget showDialog
   void _confirmarDelecao() {
     showDialog(
       context: context,
@@ -56,14 +62,14 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Fecha o diálogo
+              Navigator.of(context).pop();
             },
             child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
-              _deletarTodosAgendamentos(); // Deleta todos os agendamentos
-              Navigator.of(context).pop(); // Fecha o diálogo
+              _deletarTodosAgendamentos(); 
+              Navigator.of(context).pop();
             },
             child: const Text('Deletar'),
           ),
@@ -75,7 +81,7 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
   // Método para calcular e mostrar o lucro previsto
   void _mostrarLucroPrevisto() async {
     double lucroPrevisto =
-        await _calcularLucroPrevisto(); // Chama o método para calcular lucro
+        await _calcularLucroPrevisto(); 
 
     showModalBottomSheet(
       context: context,
@@ -83,10 +89,9 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
       builder: (BuildContext context) {
         return Container(
           padding: const EdgeInsets.all(16.0),
-          width: double.infinity, // Garante que o modal ocupe toda a largura
+          width: double.infinity, 
           child: Column(
-            mainAxisSize: MainAxisSize
-                .min, // Para que a altura do modal se ajuste ao conteúdo
+            mainAxisSize: MainAxisSize.min, 
             children: [
               const Text(
                 'Lucro Previsto',
@@ -94,15 +99,15 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
-                textAlign: TextAlign.center, // Centraliza o texto
+                textAlign: TextAlign.center, 
               ),
               const SizedBox(height: 10),
               Text(
                 'O lucro previsto é: R\$ ${lucroPrevisto.toStringAsFixed(2)}',
                 style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center, // Centraliza o texto
+                textAlign: TextAlign.center, 
               ),
-              const SizedBox(height: 20), // Espaço entre o texto e o botão
+              const SizedBox(height: 20), 
               
             ],
           ),
@@ -115,15 +120,15 @@ class _ListaAgendamentosScreenState extends State<ListaAgendamentosScreen> {
   Future<double> _calcularLucroPrevisto() async {
     double lucroTotal = 0.0;
     for (var agendamento in agendamentos) {
-      lucroTotal +=
-          agendamento['valorTotal']; // Supondo que valorTotal armazena o lucro
+      lucroTotal += agendamento['valorTotal'];
     }
     return lucroTotal;
   }
 
   @override
 Widget build(BuildContext context) {
-  final screenSize = MediaQuery.of(context).size; // Obtendo o tamanho da tela
+  //Variavel que obtem tela total do dispostivo
+  final screenSize = MediaQuery.of(context).size; 
 
   return Scaffold(
     appBar: AppBar(
@@ -156,12 +161,12 @@ Widget build(BuildContext context) {
       ),
     ),
     body: Padding(
-      padding: EdgeInsets.all(screenSize.width * 0.04), // Ajuste proporcional
+      padding: EdgeInsets.all(screenSize.width * 0.04), 
       child: agendamentos.isEmpty
           ? Center(
               child: Text(
                 'Nenhum agendamento disponível.',
-                style: TextStyle(fontSize: screenSize.width * 0.05), // Ajuste proporcional
+                style: TextStyle(fontSize: screenSize.width * 0.05),
               ),
             )
           : ListView.builder(
@@ -174,7 +179,7 @@ Widget build(BuildContext context) {
                   background: Container(
                     color: Colors.orange,
                     alignment: Alignment.centerRight,
-                    padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05), // Ajuste proporcional
+                    padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05), 
                     child: const Icon(
                       Icons.delete,
                       color: Colors.white,

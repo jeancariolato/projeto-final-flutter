@@ -12,11 +12,13 @@ class AddAgendamentoScreen extends StatefulWidget {
 }
 
 class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
+  //Instanciando objeto do DAO
   final agendamentoDAO _agendamentoDAO = agendamentoDAO();
 
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _dataController = TextEditingController();
 
+//WIDGET PARA MASCARA  DA DATA
   final MaskTextInputFormatter _dataFormatter = MaskTextInputFormatter(
     mask: '##/##/####',
     filter: {
@@ -24,6 +26,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
     },
   );
 
+//Lista de Horários disponiveis no aplicativo
   List<String> horariosDisponiveis = [
     '17:00',
     '18:00',
@@ -37,17 +40,19 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
   String? horarioSelecionado;
   double valorTotal = 0.0;
 
+//Inicializador
   @override
   void initState() {
     super.initState();
   }
 
+//METODO PARA CARREGAR HORÁRIOS OCUPADOS
   Future<void> _carregarHorariosOcupados(String data) async {
     List<String> horariosOcupados =
         await _agendamentoDAO.listarHorariosOcupados(data);
 
     setState(() {
-      // Reinicia a lista de horários disponíveis toda vez que a data muda
+      // Reinicia a lista de horários disponíveis toda vez que a data muda...
       horariosDisponiveis = [
         '17:00',
         '18:00',
@@ -58,7 +63,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
         '23:00'
       ];
 
-      // Filtra os horários ocupados
+      // Filtragem dos horários ocupados
       horariosDisponiveis = horariosDisponiveis
           .where((horario) => !horariosOcupados.contains(horario))
           .toList();
@@ -67,12 +72,15 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
     });
   }
 
+//METODO PARA CALCULAR VALOR TOTAL DE ACORDO COM A QUANTIDADE DE AGENDAMENTOS
+//PREÇO FIXO POR ALUGUEL DE R$120
   void _calcularValorTotal() {
     setState(() {
       valorTotal = (horarioSelecionado != null) ? 120 : 0;
     });
   }
 
+//Listagem de Horários ocupados
   Future<bool> _verificarAgendamentosOcupados() async {
     List<String> horariosOcupados =
         await _agendamentoDAO.listarHorariosOcupados(_dataController.text);
@@ -82,6 +90,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    //Variavel representa tela total do app para possibilitar ajustes de responsividade
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -89,7 +98,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
         title: const Text('Agendamento Manual'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(screenSize.width * 0.04), // Ajuste proporcional
+        padding: EdgeInsets.all(screenSize.width * 0.04), 
         child: Column(
           children: [
             TextField(
@@ -97,7 +106,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
               decoration:
                   const InputDecoration(labelText: 'Nome do Responsável'),
             ),
-            SizedBox(height: screenSize.height * 0.02), // Ajuste proporcional
+            SizedBox(height: screenSize.height * 0.02), 
             TextField(
               controller: _dataController,
               decoration:
@@ -118,15 +127,15 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
                       '22:00',
                       '23:00'
                     ];
-                    horarioSelecionado = null; // Limpa a seleção
-                    valorTotal = 0.0; // Reinicia valor total
+                    horarioSelecionado = null; 
+                    valorTotal = 0.0; 
                   });
                 }
               },
             ),
-            SizedBox(height: screenSize.height * 0.02), // Ajuste proporcional
+            SizedBox(height: screenSize.height * 0.02), 
             Wrap(
-              spacing: screenSize.width * 0.02, // Ajuste proporcional
+              spacing: screenSize.width * 0.02, 
               children: horariosDisponiveis.map((horario) {
                 return ChoiceChip(
                   label: Text(horario),
@@ -146,15 +155,15 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: screenSize.height * 0.02), // Ajuste proporcional
+            SizedBox(height: screenSize.height * 0.02), 
             Text(
               'Valor Total: R\$${valorTotal.toStringAsFixed(2)}',
               style: TextStyle(
-                fontSize: screenSize.width * 0.05, // Ajuste proporcional
+                fontSize: screenSize.width * 0.05, 
                 color: const Color.fromARGB(255, 105, 105, 105),
               ),
             ),
-            SizedBox(height: screenSize.height * 0.02), // Ajuste proporcional
+            SizedBox(height: screenSize.height * 0.02), 
             ElevatedButton(
               onPressed: () async {
                 bool ocupados = await _verificarAgendamentosOcupados();
@@ -204,9 +213,9 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
                     Size(screenSize.width * 0.8, screenSize.height * 0.06),
                 shape: RoundedRectangleBorder(
                   borderRadius:
-                      BorderRadius.circular(10), // Altera o raio dos cantos
+                      BorderRadius.circular(10),
                 ),
-                backgroundColor: Color.fromARGB(255, 255, 102, 0),
+                backgroundColor: const Color.fromARGB(255, 255, 102, 0),
                 foregroundColor: const Color.fromARGB(255, 255, 255, 255),
               ),
               child: const Text('Salvar'),

@@ -17,7 +17,8 @@ class AgendamentoCard extends StatelessWidget {
 
   
   String _obterMes(String data) {
-    String mes = data.split('/')[1]; // Obtém o mês (ex: "10")
+    //Obter apenas segunda parte da String 'data' (no caso mês)
+    String mes = data.split('/')[1]; 
 
     switch (mes) {
       case "01":
@@ -45,7 +46,7 @@ class AgendamentoCard extends StatelessWidget {
       case "12":
         return "DEZ";
       default:
-        return ""; // Retorna vazio se o mês não for válido
+        return "";
     }
   }
 
@@ -53,7 +54,7 @@ class AgendamentoCard extends StatelessWidget {
 Widget build(BuildContext context) {
   String mes = _obterMes(data);
 
-  // Obtém as dimensões da tela
+  // Obter tela total
   final screenSize = MediaQuery.of(context).size;
 
   return Card(
@@ -65,29 +66,29 @@ Widget build(BuildContext context) {
         children: [
           // DATA
           Container(
-            width: screenSize.width * 0.2, // Ajusta a largura do contêiner para 20% da largura da tela
-            height: screenSize.height * 0.1, // Ajusta a altura do contêiner para 10% da altura da tela
+            width: screenSize.width * 0.2, 
+            height: screenSize.height * 0.1,
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 255, 102, 0),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // Centraliza o conteúdo verticalmente
+              mainAxisAlignment: MainAxisAlignment.center, 
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  data.split('/')[0], // Aqui você pode alterar para pegar o dia real da data
+                  data.split('/')[0],
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: screenSize.width * 0.07, // Ajusta o tamanho da fonte do dia
+                    fontSize: screenSize.width * 0.07, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  mes, // Aqui você pode alterar para pegar o mês real da data
+                  mes, 
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: screenSize.width * 0.04, // Ajusta o tamanho da fonte do mês
+                    fontSize: screenSize.width * 0.04, 
                   ),
                 ),
               ],
@@ -100,14 +101,14 @@ Widget build(BuildContext context) {
               Text(
                 nomeResponsavel,
                 style: TextStyle(
-                  fontSize: screenSize.width * 0.05, // Ajusta o tamanho da fonte do nome
+                  fontSize: screenSize.width * 0.05, 
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 "R\$${valorTotal.toStringAsFixed(2)}",
                 style: TextStyle(
-                  fontSize: screenSize.width * 0.04, // Ajusta o tamanho da fonte do valor total
+                  fontSize: screenSize.width * 0.04, 
                 ),
               ),
             ],
@@ -116,7 +117,7 @@ Widget build(BuildContext context) {
           Text(
             horariosSelecionados,
             style: TextStyle(
-              fontSize: screenSize.width * 0.03, // Ajusta o tamanho da fonte dos horários
+              fontSize: screenSize.width * 0.03, 
             ),
           ),
         ],

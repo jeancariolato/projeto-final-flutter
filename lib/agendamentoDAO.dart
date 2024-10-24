@@ -1,6 +1,4 @@
 import 'package:projeto_final/databaseHelper.dart';
-import 'agendamento.dart';
-import 'package:sqflite/sqflite.dart';
 
 class agendamentoDAO{
   final DatabaseHelper _dbHelper = DatabaseHelper();
@@ -11,6 +9,7 @@ class agendamentoDAO{
     return await db.insert('agendamentos', agendamento);
   }
 
+//Listar todos os agendamentos de forma ordenada pela data e horario
   Future<List<Map<String, dynamic>>> listarAgendamentos() async {
     final db = await _dbHelper.database;
     return await db.query('agendamentos', orderBy: 'data ASC, horariosSelecionados ASC');

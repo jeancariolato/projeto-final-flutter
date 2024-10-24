@@ -11,16 +11,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0; // Para controlar o item selecionado no BottomNavigationBar
+  int _currentIndex = 0; // Index para controlar posição na BottomNavigation
 
-  // As duas telas que vamos alternar
+  // As telas que vão estar disponiveis
   final List<Widget> _telas = [
-    const AddAgendamentoScreen(),  // Tela de Agendamento Manual
+    const AddAgendamentoScreen(),  
     const ListaAgendamentosScreen(),
-    NoticiasScreen()  // Tela de Lista de Agendamentos
+    const NoticiasScreen()
   ];
 
-  // Método que troca a tela quando um item do BottomNavigationBar é selecionado
+  // Método que troca a tela quando item da BottomNavigation é selecionado
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -30,12 +30,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _telas[_currentIndex], // Exibe a tela conforme o índice selecionado
+      body: _telas[_currentIndex], 
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex, // Índice atual selecionado
-        onTap: _onTabTapped, // Método chamado quando um item é selecionado
-        selectedItemColor: Colors.orange, // Cor do item selecionado
-        unselectedItemColor: Colors.grey, // Cor dos itens não selecionados
+        currentIndex: _currentIndex, 
+        onTap: _onTabTapped, 
+        selectedItemColor: Colors.orange, 
+        unselectedItemColor: Colors.grey, 
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.add, size: 30,),

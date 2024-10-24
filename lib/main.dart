@@ -12,12 +12,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
      debugShowCheckedModeBanner: false,
+     //ALTERANDO FONTE DO APP
      theme: ThemeData(
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(fontFamily: 'Satoshi'), // Texto normal
-          bodyMedium: TextStyle(fontFamily: 'Satoshi'), // Texto secundário
-          titleLarge: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.bold), // Títulos
-          // Adicione outros estilos de texto se necessário
+          bodyLarge: TextStyle(fontFamily: 'Satoshi'), 
+          bodyMedium: TextStyle(fontFamily: 'Satoshi'), 
+          titleLarge: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.bold), 
         ),
       ),
       home:  const HomeScreen(),
