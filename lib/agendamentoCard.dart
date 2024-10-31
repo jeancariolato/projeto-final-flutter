@@ -6,6 +6,7 @@ class AgendamentoCard extends StatelessWidget {
   final String data;
   final String horariosSelecionados;
   final double valorTotal;
+  final String esporte;
 
   const AgendamentoCard({
     super.key,
@@ -13,12 +14,12 @@ class AgendamentoCard extends StatelessWidget {
     required this.data,
     required this.horariosSelecionados,
     required this.valorTotal,
+    required this.esporte
   });
 
   
   String _obterMes(String data) {
-    //Obter apenas segunda parte da String 'data' (no caso mês)
-    String mes = data.split('/')[1]; 
+    String mes = data.split('/')[1]; // Obtém o mês (ex: "10")
 
     switch (mes) {
       case "01":
@@ -46,7 +47,7 @@ class AgendamentoCard extends StatelessWidget {
       case "12":
         return "DEZ";
       default:
-        return "";
+        return ""; // Retorna vazio se o mês não for válido
     }
   }
 
@@ -54,7 +55,7 @@ class AgendamentoCard extends StatelessWidget {
 Widget build(BuildContext context) {
   String mes = _obterMes(data);
 
-  // Obter tela total
+  // Obtém as dimensões da tela
   final screenSize = MediaQuery.of(context).size;
 
   return Card(
@@ -66,29 +67,29 @@ Widget build(BuildContext context) {
         children: [
           // DATA
           Container(
-            width: screenSize.width * 0.2, 
-            height: screenSize.height * 0.1,
+            width: screenSize.width * 0.2, // Ajusta a largura do contêiner para 20% da largura da tela
+            height: screenSize.height * 0.1, // Ajusta a altura do contêiner para 10% da altura da tela
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 255, 102, 0),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, 
+              mainAxisAlignment: MainAxisAlignment.center, // Centraliza o conteúdo verticalmente
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  data.split('/')[0],
+                  data.split('/')[0], // Aqui você pode alterar para pegar o dia real da data
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: screenSize.width * 0.07, 
+                    fontSize: screenSize.width * 0.07, // Ajusta o tamanho da fonte do dia
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  mes, 
+                  mes, // Aqui você pode alterar para pegar o mês real da data
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: screenSize.width * 0.04, 
+                    fontSize: screenSize.width * 0.04, // Ajusta o tamanho da fonte do mês
                   ),
                 ),
               ],
@@ -101,14 +102,14 @@ Widget build(BuildContext context) {
               Text(
                 nomeResponsavel,
                 style: TextStyle(
-                  fontSize: screenSize.width * 0.05, 
+                  fontSize: screenSize.width * 0.05, // Ajusta o tamanho da fonte do nome
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                "R\$${valorTotal.toStringAsFixed(2)}",
+                esporte,
                 style: TextStyle(
-                  fontSize: screenSize.width * 0.04, 
+                  fontSize: screenSize.width * 0.04, // Ajusta o tamanho da fonte do valor total
                 ),
               ),
             ],
@@ -117,7 +118,7 @@ Widget build(BuildContext context) {
           Text(
             horariosSelecionados,
             style: TextStyle(
-              fontSize: screenSize.width * 0.03, 
+              fontSize: screenSize.width * 0.03, // Ajusta o tamanho da fonte dos horários
             ),
           ),
         ],

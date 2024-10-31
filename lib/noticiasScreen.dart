@@ -12,8 +12,7 @@ class NoticiasScreen extends StatefulWidget {
 
 class _NoticiasScreenState extends State<NoticiasScreen> {
   List<dynamic> noticias = [];
-  // Instância do Dio
-  Dio dio = Dio(); 
+  Dio dio = Dio(); // Instância do Dio
 
   @override
   void initState() {
@@ -24,7 +23,6 @@ class _NoticiasScreenState extends State<NoticiasScreen> {
   // Função para carregar o JSON da API usando Dio
   Future<void> _carregarNoticias() async {
     try {
-      //Link do json das noticias de esporte do jornal A plateia
       final response = await dio
           .get('https://www.aplateia.com.br/wp-json/wp/v2/posts?categories=6');
 
@@ -45,13 +43,12 @@ class _NoticiasScreenState extends State<NoticiasScreen> {
   String formatarData(String data) {
     DateTime parsedDate =
         DateTime.parse(data); // Converte a string para DateTime
-    return DateFormat('dd-MM-yyyy').format(parsedDate); 
+    return DateFormat('dd-MM-yyyy').format(parsedDate); // Formata a data
   }
 
   @override
   Widget build(BuildContext context) {
-    //Obtendo tamanho total da tela
-    final screenSize = MediaQuery.of(context).size; 
+    final screenSize = MediaQuery.of(context).size; // Obtendo o tamanho da tela
 
     return Scaffold(
       appBar: AppBar(
@@ -60,25 +57,24 @@ class _NoticiasScreenState extends State<NoticiasScreen> {
           'Notícias do Esporte',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: screenSize.width * 0.05, 
+            fontSize: screenSize.width * 0.05, // Ajuste proporcional
           ),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(screenSize.width * 0.04),
+        padding: EdgeInsets.all(screenSize.width * 0.04), // Ajuste proporcional
         child: noticias.isEmpty
             ? const Center(child: CircularProgressIndicator())
             : ListView.builder(
                 itemCount: noticias.length,
                 itemBuilder: (context, index) {
-                  //CARREGANDO OS ITENS DO JSON DO SITE DO JORNAL
                   final noticia = noticias[index];
                   final titulo = noticia['title']['rendered'];
                   final dataOriginal = noticia['date'];
-                  // Formatando a data
-                  final dataFormatada = formatarData(dataOriginal); 
+                  final dataFormatada =
+                      formatarData(dataOriginal); // Formata a data
                   final link = noticia['link'];
-                  final content = limparConteudo(noticia['content']['rendered']);
+                  final content = noticia['content']['rendered'];
 
                   return NoticiaCard(
                     titulo: titulo,
@@ -91,10 +87,4 @@ class _NoticiasScreenState extends State<NoticiasScreen> {
       ),
     );
   }
-
-  // Função para limpar o conteúdo HTML
-  String limparConteudo(String conteudo) {
-  final regex = RegExp(r'<[^>]*>');
-  return conteudo.replaceAll(regex, ''); // Substitui as tags por uma string vazia
-}
 }

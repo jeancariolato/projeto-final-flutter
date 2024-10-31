@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:projeto_final/agendamentoDAO.dart';
-import 'databaseHelper.dart';
-import 'package:projeto_final/agendamentoDAO.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class AddAgendamentoScreen extends StatefulWidget {
   const AddAgendamentoScreen({super.key});
@@ -12,21 +11,14 @@ class AddAgendamentoScreen extends StatefulWidget {
 }
 
 class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
-  //Instanciando objeto do DAO
   final agendamentoDAO _agendamentoDAO = agendamentoDAO();
 
   final TextEditingController _nomeController = TextEditingController();
-  final TextEditingController _dataController = TextEditingController();
+  DateTime? _selectedDate; // Armazena a data selecionada no calendário
 
-//WIDGET PARA MASCARA  DA DATA
-  final MaskTextInputFormatter _dataFormatter = MaskTextInputFormatter(
-    mask: '##/##/####',
-    filter: {
-      "#": RegExp(r'[0-9]'),
-    },
-  );
+  List<String> sports = ['Futebol', 'Volei', 'Basquete'];
+  int? selectedChipIndex; // Alterado para armazenar apenas o índice do chip selecionado
 
-//Lista de Horários disponiveis no aplicativo
   List<String> horariosDisponiveis = [
     '17:00',
     '18:00',
@@ -40,19 +32,19 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
   String? horarioSelecionado;
   double valorTotal = 0.0;
 
-//Inicializador
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting();
   }
 
-//METODO PARA CARREGAR HORÁRIOS OCUPADOS
-  Future<void> _carregarHorariosOcupados(String data) async {
+  Future<void> _carregarHorariosOcupados(DateTime date) async {
+    final dataFormatada =
+        '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     List<String> horariosOcupados =
-        await _agendamentoDAO.listarHorariosOcupados(data);
+        await _agendamentoDAO.listarHorariosOcupados(dataFormatada);
 
     setState(() {
-      // Reinicia a lista de horários disponíveis toda vez que a data muda...
       horariosDisponiveis = [
         '17:00',
         '18:00',
@@ -61,36 +53,30 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
         '21:00',
         '22:00',
         '23:00'
-      ];
-
-      // Filtragem dos horários ocupados
-      horariosDisponiveis = horariosDisponiveis
-          .where((horario) => !horariosOcupados.contains(horario))
-          .toList();
-      horarioSelecionado = null; // Limpa o horário selecionado
-      valorTotal = 0.0; // Reinicia valor total
+      ].where((horario) => !horariosOcupados.contains(horario)).toList();
+      horarioSelecionado = null;
+      valorTotal = 0.0;
     });
   }
 
-//METODO PARA CALCULAR VALOR TOTAL DE ACORDO COM A QUANTIDADE DE AGENDAMENTOS
-//PREÇO FIXO POR ALUGUEL DE R$120
   void _calcularValorTotal() {
     setState(() {
       valorTotal = (horarioSelecionado != null) ? 120 : 0;
     });
   }
 
-//Listagem de Horários ocupados
   Future<bool> _verificarAgendamentosOcupados() async {
+    if (_selectedDate == null) return false;
+    final dataFormatada =
+        '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}';
     List<String> horariosOcupados =
-        await _agendamentoDAO.listarHorariosOcupados(_dataController.text);
+        await _agendamentoDAO.listarHorariosOcupados(dataFormatada);
     return horarioSelecionado != null &&
         horariosOcupados.contains(horarioSelecionado!);
   }
 
   @override
   Widget build(BuildContext context) {
-    //Variavel representa tela total do app para possibilitar ajustes de responsividade
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -98,7 +84,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
         title: const Text('Agendamento Manual'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(screenSize.width * 0.04), 
+        padding: EdgeInsets.all(screenSize.width * 0.03),
         child: Column(
           children: [
             TextField(
@@ -106,64 +92,122 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
               decoration:
                   const InputDecoration(labelText: 'Nome do Responsável'),
             ),
-            SizedBox(height: screenSize.height * 0.02), 
-            TextField(
-              controller: _dataController,
-              decoration:
-                  const InputDecoration(labelText: 'Data (Dia/Mês/Ano)'),
-              inputFormatters: [_dataFormatter],
-              onChanged: (value) {
-                if (value.length == 10) {
-                  _carregarHorariosOcupados(value);
-                } else {
-                  // Resetar horários se a data não estiver completa
-                  setState(() {
-                    horariosDisponiveis = [
-                      '17:00',
-                      '18:00',
-                      '19:00',
-                      '20:00',
-                      '21:00',
-                      '22:00',
-                      '23:00'
-                    ];
-                    horarioSelecionado = null; 
-                    valorTotal = 0.0; 
-                  });
-                }
-              },
-            ),
-            SizedBox(height: screenSize.height * 0.02), 
-            Wrap(
-              spacing: screenSize.width * 0.02, 
-              children: horariosDisponiveis.map((horario) {
-                return ChoiceChip(
-                  label: Text(horario),
-                  selected: horarioSelecionado == horario,
-                  selectedColor: Colors.orange,
-                  backgroundColor: Colors.grey[200],
-                  onSelected: (selected) {
-                    setState(() {
-                      if (selected) {
-                        horarioSelecionado = horario;
-                      } else {
-                        horarioSelecionado = null;
-                      }
-                      _calcularValorTotal();
-                    });
-                  },
+            SizedBox(height: screenSize.height * 0.02),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(sports.length, (index) {
+                return Padding(
+                  padding: EdgeInsets.all(screenSize.width * 0.01),
+                  child: ChoiceChip(
+                    label: Row(children: [
+                      Icon(
+                        index == 0
+                            ? Icons.sports_soccer
+                            : index == 1
+                                ? Icons.sports_volleyball
+                                : Icons.sports_basketball,
+                        color: selectedChipIndex == index
+                            ? Colors.white
+                            : const Color.fromARGB(255, 139, 139, 139),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        sports[index],
+                        style: TextStyle(
+                            color: selectedChipIndex == index
+                                ? Colors.white
+                                : const Color.fromARGB(255, 153, 153, 153)),
+                      )
+                    ]),
+                    selected: selectedChipIndex == index,
+                    showCheckmark: false,
+                    selectedColor: Colors.orange,
+                    backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+                    onSelected: (bool value) {
+                      setState(() {
+                        selectedChipIndex = value ? index : null; // Armazena o índice do chip selecionado
+                      });
+                    },
+                  ),
                 );
-              }).toList(),
+              }),
             ),
-            SizedBox(height: screenSize.height * 0.02), 
-            Text(
-              'Valor Total: R\$${valorTotal.toStringAsFixed(2)}',
-              style: TextStyle(
-                fontSize: screenSize.width * 0.05, 
-                color: const Color.fromARGB(255, 105, 105, 105),
+            SizedBox(height: screenSize.height * 0.01),
+            SizedBox(
+              width: screenSize.width * 0.9,
+              height: screenSize.height * 0.45,
+              child: TableCalendar(
+                calendarStyle: const CalendarStyle(
+                  cellMargin: EdgeInsets.all(1),
+                  weekendTextStyle:
+                      TextStyle(fontSize: 14, color: Colors.black),
+                  defaultTextStyle:
+                      TextStyle(fontSize: 14, color: Colors.black),
+                  outsideDaysVisible: false,
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.orange, // Cor do fundo da data selecionada
+                    shape: BoxShape.circle, // Forma do círculo
+                  ),
+                  todayDecoration: BoxDecoration(
+                    color: Color.fromARGB(255, 187, 90, 12), // Cor do fundo do dia atual
+                    shape: BoxShape.circle, // Forma do círculo
+                  ),
+                ),
+                daysOfWeekStyle: const DaysOfWeekStyle(
+                  weekdayStyle:
+                      TextStyle(fontSize: 12), // Tamanho dos dias da semana
+                  weekendStyle: TextStyle(fontSize: 12),
+                ),
+                headerStyle: const HeaderStyle(
+                  titleTextStyle:
+                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  formatButtonVisible: false,
+                  titleCentered:
+                      true, // Remove o botão de formato, se necessário
+                ),
+                calendarFormat: CalendarFormat.month,
+                locale: 'pt_BR',
+                firstDay: DateTime.now(),
+                lastDay: DateTime.now().add(const Duration(days: 365)),
+                focusedDay: _selectedDate ?? DateTime.now(),
+                selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDate = selectedDay;
+                    _carregarHorariosOcupados(selectedDay);
+                  });
+                },
               ),
             ),
-            SizedBox(height: screenSize.height * 0.02), 
+            SizedBox(height: screenSize.height * 0.005),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: horariosDisponiveis.map((horario) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.width * 0.02),
+                    child: ChoiceChip(
+                      label: Text(horario),
+                      selected: horarioSelecionado == horario,
+                      selectedColor: Colors.orange,
+                      backgroundColor: Colors.grey[200],
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            horarioSelecionado = horario;
+                          } else {
+                            horarioSelecionado = null;
+                          }
+                          _calcularValorTotal();
+                        });
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            SizedBox(height: screenSize.height * 0.02),
             ElevatedButton(
               onPressed: () async {
                 bool ocupados = await _verificarAgendamentosOcupados();
@@ -179,7 +223,8 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
                 } else {
                   await _agendamentoDAO.inserirAgendamento({
                     'nomeResponsavel': _nomeController.text,
-                    'data': _dataController.text,
+                    'data':
+                        '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
                     'horariosSelecionados': horarioSelecionado ?? '',
                     'valorTotal': valorTotal,
                   });
@@ -193,7 +238,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
 
                   // Limpar campos após salvar
                   _nomeController.clear();
-                  _dataController.clear();
+                  _selectedDate = null;
                   horarioSelecionado = null;
                   horariosDisponiveis = [
                     '17:00',
@@ -212,14 +257,14 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
                 minimumSize:
                     Size(screenSize.width * 0.8, screenSize.height * 0.06),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 backgroundColor: const Color.fromARGB(255, 255, 102, 0),
                 foregroundColor: const Color.fromARGB(255, 255, 255, 255),
               ),
               child: const Text('Salvar'),
             ),
+            SizedBox(height: screenSize.height * 0.02),
           ],
         ),
       ),

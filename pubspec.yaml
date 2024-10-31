@@ -47,6 +47,7 @@ dev_dependencies:
   mask_text_input_formatter: ^2.0.0 # Adicione essa linha
   intl: ^0.18.0
   dio: ^5.0.10
+  table_calendar: ^3.0.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -14,7 +14,6 @@ class NoticiaCard extends StatelessWidget {
     required this.conteudo,
   });
 
-//ITEM DA NOTICIA 
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -25,17 +24,17 @@ class NoticiaCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          //Ao clicar em um dos itens abre modal com a notícia completa
+          // Mostra o conteúdo completo da notícia no BottomSheet que ocupa a tela toda
           showModalBottomSheet(
             context: context,
-            isScrollControlled: true, 
+            isScrollControlled: true, // Faz o modal ocupar toda a tela
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
             ),
             builder: (BuildContext context) {
               return Container(
                 padding: const EdgeInsets.all(16.0),
-                height: MediaQuery.of(context).size.height * 0.95,
+                height: MediaQuery.of(context).size.height * 0.95, // Ocupa quase toda a tela
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
@@ -46,7 +45,7 @@ class NoticiaCard extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.close),
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(context); // Fecha o modal
                           },
                         ),
                       ],
@@ -55,6 +54,7 @@ class NoticiaCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Ajuste para quebrar o título em várias linhas se necessário
                         Expanded(
                           child: Text(
                             titulo,
@@ -62,8 +62,8 @@ class NoticiaCard extends StatelessWidget {
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
-                            softWrap: true, 
-                            overflow: TextOverflow.visible, 
+                            softWrap: true, // Permite quebra automática
+                            overflow: TextOverflow.visible, // Faz o texto aparecer mesmo se for longo
                           ),
                         ),
                         
@@ -107,8 +107,8 @@ class NoticiaCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
-                softWrap: true, 
-                overflow: TextOverflow.visible, 
+                softWrap: true, // Permite quebra automática no Card também
+                overflow: TextOverflow.visible, // Caso o texto seja muito grande
               ),
               const SizedBox(height: 8),
               Text(
