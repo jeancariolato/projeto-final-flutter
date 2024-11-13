@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:projeto_final/agendamentoDAO.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class AddAgendamentoScreen extends StatefulWidget {
@@ -12,12 +12,8 @@ class AddAgendamentoScreen extends StatefulWidget {
 
 class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
   final agendamentoDAO _agendamentoDAO = agendamentoDAO();
-
   final TextEditingController _nomeController = TextEditingController();
-  DateTime? _selectedDate; // Armazena a data selecionada no calendário
-
-  List<String> sports = ['Futebol', 'Volei', 'Basquete'];
-  int? selectedChipIndex; // Alterado para armazenar apenas o índice do chip selecionado
+  final TextEditingController _dataController = TextEditingController();
 
   List<String> horariosDisponiveis = [
     '17:00',
@@ -31,6 +27,7 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
 
   String? horarioSelecionado;
   double valorTotal = 0.0;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -38,11 +35,9 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
     initializeDateFormatting();
   }
 
-  Future<void> _carregarHorariosOcupados(DateTime date) async {
-    final dataFormatada =
-        '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  Future<void> _carregarHorariosOcupados(String data) async {
     List<String> horariosOcupados =
-        await _agendamentoDAO.listarHorariosOcupados(dataFormatada);
+        await _agendamentoDAO.listarHorariosOcupados(data);
 
     setState(() {
       horariosDisponiveis = [
@@ -53,7 +48,11 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
         '21:00',
         '22:00',
         '23:00'
-      ].where((horario) => !horariosOcupados.contains(horario)).toList();
+      ];
+
+      horariosDisponiveis = horariosDisponiveis
+          .where((horario) => !horariosOcupados.contains(horario))
+          .toList();
       horarioSelecionado = null;
       valorTotal = 0.0;
     });
@@ -66,13 +65,19 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
   }
 
   Future<bool> _verificarAgendamentosOcupados() async {
-    if (_selectedDate == null) return false;
-    final dataFormatada =
-        '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}';
     List<String> horariosOcupados =
-        await _agendamentoDAO.listarHorariosOcupados(dataFormatada);
+        await _agendamentoDAO.listarHorariosOcupados(_dataController.text);
     return horarioSelecionado != null &&
         horariosOcupados.contains(horarioSelecionado!);
+  }
+
+  void _onDaySelected(DateTime day, DateTime focusedDay) {
+    setState(() {
+      selectedDate = day;
+      _dataController.text =
+          "${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}";
+      _carregarHorariosOcupados(_dataController.text);
+    });
   }
 
   @override
@@ -84,147 +89,113 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
         title: const Text('Agendamento Manual'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(screenSize.width * 0.03),
+        padding: EdgeInsets.all(screenSize.width * 0.04),
         child: Column(
           children: [
-            TextField(
-              controller: _nomeController,
-              decoration:
-                  const InputDecoration(labelText: 'Nome do Responsável'),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.person,
+                  color: Color.fromARGB(255, 214, 214, 214),
+                  size: 30,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _nomeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nome do Responsável',
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.orange),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Color.fromARGB(255, 219, 219, 219)),
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: screenSize.height * 0.02),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(sports.length, (index) {
-                return Padding(
-                  padding: EdgeInsets.all(screenSize.width * 0.01),
-                  child: ChoiceChip(
-                    label: Row(children: [
-                      Icon(
-                        index == 0
-                            ? Icons.sports_soccer
-                            : index == 1
-                                ? Icons.sports_volleyball
-                                : Icons.sports_basketball,
-                        color: selectedChipIndex == index
-                            ? Colors.white
-                            : const Color.fromARGB(255, 139, 139, 139),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        sports[index],
-                        style: TextStyle(
-                            color: selectedChipIndex == index
-                                ? Colors.white
-                                : const Color.fromARGB(255, 153, 153, 153)),
-                      )
-                    ]),
-                    selected: selectedChipIndex == index,
-                    showCheckmark: false,
-                    selectedColor: Colors.orange,
-                    backgroundColor: const Color.fromARGB(255, 243, 243, 243),
-                    onSelected: (bool value) {
-                      setState(() {
-                        selectedChipIndex = value ? index : null; // Armazena o índice do chip selecionado
-                      });
-                    },
-                  ),
+            TableCalendar(
+              locale: 'pt_BR',
+              focusedDay: selectedDate,
+              firstDay: DateTime.now(),
+              lastDay: DateTime.utc(2030, 12, 31),
+              selectedDayPredicate: (day) => isSameDay(day, selectedDate),
+              onDaySelected: _onDaySelected,
+              headerStyle: const HeaderStyle(
+                titleTextStyle:
+                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                formatButtonVisible: false,
+                titleCentered: true,
+              ),
+              calendarStyle: const CalendarStyle(
+                todayDecoration: BoxDecoration(
+                  color: Color.fromARGB(255, 192, 86, 0),
+                  shape: BoxShape.circle,
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            SizedBox(height: screenSize.height * 0.02),
+            Wrap(
+              spacing: screenSize.width * 0.02,
+              children: horariosDisponiveis.map((horario) {
+                return ChoiceChip(
+                  label: Text(horario),
+                  selected: horarioSelecionado == horario,
+                  selectedColor: Colors.orange,
+                  backgroundColor: Colors.grey[200],
+                  onSelected: (selected) {
+                    setState(() {
+                      horarioSelecionado = selected ? horario : null;
+                      _calcularValorTotal();
+                    });
+                  },
                 );
-              }),
-            ),
-            SizedBox(height: screenSize.height * 0.01),
-            SizedBox(
-              width: screenSize.width * 0.9,
-              height: screenSize.height * 0.45,
-              child: TableCalendar(
-                calendarStyle: const CalendarStyle(
-                  cellMargin: EdgeInsets.all(1),
-                  weekendTextStyle:
-                      TextStyle(fontSize: 14, color: Colors.black),
-                  defaultTextStyle:
-                      TextStyle(fontSize: 14, color: Colors.black),
-                  outsideDaysVisible: false,
-                  selectedDecoration: BoxDecoration(
-                    color: Colors.orange, // Cor do fundo da data selecionada
-                    shape: BoxShape.circle, // Forma do círculo
-                  ),
-                  todayDecoration: BoxDecoration(
-                    color: Color.fromARGB(255, 187, 90, 12), // Cor do fundo do dia atual
-                    shape: BoxShape.circle, // Forma do círculo
-                  ),
-                ),
-                daysOfWeekStyle: const DaysOfWeekStyle(
-                  weekdayStyle:
-                      TextStyle(fontSize: 12), // Tamanho dos dias da semana
-                  weekendStyle: TextStyle(fontSize: 12),
-                ),
-                headerStyle: const HeaderStyle(
-                  titleTextStyle:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  formatButtonVisible: false,
-                  titleCentered:
-                      true, // Remove o botão de formato, se necessário
-                ),
-                calendarFormat: CalendarFormat.month,
-                locale: 'pt_BR',
-                firstDay: DateTime.now(),
-                lastDay: DateTime.now().add(const Duration(days: 365)),
-                focusedDay: _selectedDate ?? DateTime.now(),
-                selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDate = selectedDay;
-                    _carregarHorariosOcupados(selectedDay);
-                  });
-                },
-              ),
-            ),
-            SizedBox(height: screenSize.height * 0.005),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: horariosDisponiveis.map((horario) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.width * 0.02),
-                    child: ChoiceChip(
-                      label: Text(horario),
-                      selected: horarioSelecionado == horario,
-                      selectedColor: Colors.orange,
-                      backgroundColor: Colors.grey[200],
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            horarioSelecionado = horario;
-                          } else {
-                            horarioSelecionado = null;
-                          }
-                          _calcularValorTotal();
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
-              ),
+              }).toList(),
             ),
             SizedBox(height: screenSize.height * 0.02),
             ElevatedButton(
               onPressed: () async {
+                if (_nomeController.text.isEmpty ||
+                    _dataController.text.isEmpty ||
+                    horarioSelecionado == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          'Preencha o nome, selecione uma data e um horário.'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                  return;
+                }
+
                 bool ocupados = await _verificarAgendamentosOcupados();
 
                 if (ocupados) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text(
-                          'Horário ou data já ocupados. Escolha outra opção.'),
+                      content:
+                          Text('Horário ou data já ocupados. Escolha outra opção.'),
                       duration: Duration(seconds: 3),
                     ),
                   );
                 } else {
                   await _agendamentoDAO.inserirAgendamento({
                     'nomeResponsavel': _nomeController.text,
-                    'data':
-                        '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
+                    'data': _dataController.text,
                     'horariosSelecionados': horarioSelecionado ?? '',
                     'valorTotal': valorTotal,
                   });
@@ -236,9 +207,8 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
                     ),
                   );
 
-                  // Limpar campos após salvar
                   _nomeController.clear();
-                  _selectedDate = null;
+                  _dataController.clear();
                   horarioSelecionado = null;
                   horariosDisponiveis = [
                     '17:00',
@@ -264,7 +234,6 @@ class _AddAgendamentoScreenState extends State<AddAgendamentoScreen> {
               ),
               child: const Text('Salvar'),
             ),
-            SizedBox(height: screenSize.height * 0.02),
           ],
         ),
       ),

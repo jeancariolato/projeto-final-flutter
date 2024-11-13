@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_final/homeScreen.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
@@ -12,12 +13,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
      debugShowCheckedModeBanner: false,
+     //ALTERANDO FONTE DO APP
+     locale: const Locale('pt', 'BR'),
      theme: ThemeData(
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(fontFamily: 'Satoshi'), // Texto normal
-          bodyMedium: TextStyle(fontFamily: 'Satoshi'), // Texto secundário
-          titleLarge: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.bold), // Títulos
-          // Adicione outros estilos de texto se necessário
+          bodyLarge: TextStyle(fontFamily: 'Satoshi'), 
+          bodyMedium: TextStyle(fontFamily: 'Satoshi'), 
+          titleLarge: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.bold), 
         ),
       ),
       home:  const HomeScreen(),

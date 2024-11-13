@@ -9,6 +9,7 @@ class agendamentoDAO{
     return await db.insert('agendamentos', agendamento);
   }
 
+//Listar todos os agendamentos de forma ordenada pela data e horario
   Future<List<Map<String, dynamic>>> listarAgendamentos() async {
     final db = await _dbHelper.database;
     return await db.query('agendamentos', orderBy: 'data ASC, horariosSelecionados ASC');
@@ -35,4 +36,5 @@ class agendamentoDAO{
 
    return maps.map((map) => map['horariosSelecionados'] as String).expand((horarios) => horarios.split(', ')).toList();
  }
+
 }

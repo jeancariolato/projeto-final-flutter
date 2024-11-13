@@ -26,7 +26,7 @@ class DatabaseHelper {
             nomeResponsavel TEXT,
             data TEXT,
             horariosSelecionados TEXT,
-            valorTotal REAL
+            valorTotal REAL,
           )
         ''');
       },
